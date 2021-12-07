@@ -3,6 +3,8 @@ import { createReadStream } from 'fs'
 import walkSync from 'walk-sync'
 import { WebClient } from '@slack/web-api'
 import actorMap from './actors'
+import * as fs from 'fs'
+
 
 async function run(): Promise<void> {
   try {
@@ -23,10 +25,21 @@ async function run(): Promise<void> {
     core.debug('Slack SDK initialized successfully')
 
     core.debug('Checking for videos and/or screenshots from cypress')
-    const videos = walkSync('tests/e2e/videos', { globs: ['**/*.mp4'] })
-    const screenshots = walkSync('tests/e2e/screenshots', {
-      globs: ['**/*.png']
-    })
+    if (fs.existsSync("./tests/e2e/videos")) {
+      const videos = walkSync('tests/e2e/videos', { globs: ['**/*.mp4'] })
+    } else {
+      const videos = new Object();
+      videos.length = 0
+    }
+
+    if (fs.existsSync("./tests/e2e/screenshots")) {
+      const screenshots = walkSync('tests/e2e/screenshots', {
+        globs: ['**/*.png']
+      })
+    } else {
+      const screenshots = new Object();
+      screenshots.length = 0
+    }
 
     if (videos.length <= 0 && screenshots.length <= 0) {
       core.debug('No videos or screenshots found. Exiting!')
