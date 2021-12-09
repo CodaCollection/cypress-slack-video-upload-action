@@ -25,18 +25,24 @@ async function run(): Promise<void> {
     core.debug('Slack SDK initialized successfully')
 
     core.debug('Checking for videos and/or screenshots from cypress')
+    core.debug('Checking if videos directory exists...')
     if (fs.existsSync("./tests/e2e/videos")) {
+      core.debug('Videos directory exists!')
       const videos = walkSync('tests/e2e/videos', { globs: ['**/*.mp4'] })
     } else {
+      core.debug('Videos directory DOES NOT exists!')
       const videos = new Object();
       videos.length = 0
     }
 
+    core.debug('Checking if screenshots directory exists...')
     if (fs.existsSync("./tests/e2e/screenshots")) {
+      core.debug('Screenshots directory exists!')
       const screenshots = walkSync('tests/e2e/screenshots', {
         globs: ['**/*.png']
       })
     } else {
+      core.debug('Screenshots directory DOES NOT exists!')
       const screenshots = new Object();
       screenshots.length = 0
     }
