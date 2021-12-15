@@ -24,7 +24,6 @@ async function run(): Promise<void> {
     const slack = new WebClient(token)
     core.debug('Slack SDK initialized successfully')
 
-    core.debug('Checking for videos and/or screenshots from cypress')
     core.debug('Checking if videos directory exists...')
     if (fs.existsSync("./tests/e2e/videos")) {
       core.debug('Videos directory exists!')
