@@ -3,6 +3,8 @@ import { createReadStream } from 'fs'
 import walkSync from 'walk-sync'
 import { WebClient } from '@slack/web-api'
 import actorMap from './actors'
+import * as fs from 'fs'
+
 
 async function run(): Promise<void> {
   try {
@@ -13,6 +15,8 @@ async function run(): Promise<void> {
     const actor = core.getInput('actor')
     const runId = core.getInput('runId')
 
+    let screenshots;
+
     core.debug(`Token: ${token}`)
     core.debug(`Channels: ${channels}`)
     core.debug(`Branch: ${branch}`)
@@ -22,10 +26,18 @@ async function run(): Promise<void> {
     const slack = new WebClient(token)
     core.debug('Slack SDK initialized successfully')
 
-    core.debug('Checking for screenshots from cypress')
-    const screenshots = walkSync('tests/e2e/screenshots', {
-      globs: ['**/*.png']
-    })
+    core.debug('Checking if screenshots directory exists...')
+    if (fs.existsSync("./tests/e2e/screenshots")) {
+      core.debug('Screenshots directory exists!')
+      screenshots = walkSync('tests/e2e/screenshots', {
+        globs: ['**/*.png']
+      })
+    } else {
+      core.debug('Screenshots directory DOES NOT exists!')
+      screenshots = {
+        length: 0
+      }
+    }
 
     if (screenshots.length <= 0) {
       core.debug('No screenshots found. Exiting!')

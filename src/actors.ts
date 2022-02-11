@@ -9,7 +9,8 @@ const actors = {
   'yao-zhang-coda': 'U017ZPV3M44',
   'keri-weiss-coda': 'U02MRRD9BFD',
   'luis-solano-coda': 'U02K654CABH',
-  'vince-zipparro-coda': 'U02E70XGRFF'
+  'vince-zipparro-coda': 'U02E70XGRFF',
+  'kayleigh-traister-coda': 'U021E5FUSKD'
 }
 
 export default actors
