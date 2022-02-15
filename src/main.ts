@@ -5,7 +5,6 @@ import { WebClient } from '@slack/web-api'
 import actorMap from './actors'
 import * as fs from 'fs'
 
-
 async function run(): Promise<void> {
   try {
     core.debug('INIT!')
@@ -15,7 +14,7 @@ async function run(): Promise<void> {
     const actor = core.getInput('actor')
     const runId = core.getInput('runId')
 
-    let screenshots;
+    let screenshots
 
     core.debug(`Token: ${token}`)
     core.debug(`Channels: ${channels}`)
@@ -27,7 +26,7 @@ async function run(): Promise<void> {
     core.debug('Slack SDK initialized successfully')
 
     core.debug('Checking if screenshots directory exists...')
-    if (fs.existsSync("./tests/e2e/screenshots")) {
+    if (fs.existsSync('./tests/e2e/screenshots')) {
       core.debug('Screenshots directory exists!')
       screenshots = walkSync('tests/e2e/screenshots', {
         globs: ['**/*.png']
@@ -45,9 +44,7 @@ async function run(): Promise<void> {
       return
     }
 
-    core.debug(
-      `Found ${screenshots.length} screenshots`
-    )
+    core.debug(`Found ${screenshots.length} screenshots`)
 
     core.debug('Sending initial slack message')
     const result = await slack.chat.postMessage({
@@ -88,8 +85,10 @@ async function run(): Promise<void> {
     })
 
     core.setOutput('result', 'Bingo bango bongo!')
-  } catch (error: any) {
-    core.setFailed(error.message)
+  } catch (error) {
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
   }
 }
 

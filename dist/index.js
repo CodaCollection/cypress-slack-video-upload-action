@@ -752,6 +752,7 @@ const fs_1 = __webpack_require__(747);
 const walk_sync_1 = __importDefault(__webpack_require__(999));
 const web_api_1 = __webpack_require__(431);
 const actors_1 = __importDefault(__webpack_require__(769));
+const fs = __importStar(__webpack_require__(747));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -761,6 +762,7 @@ function run() {
             const branch = core.getInput('branch');
             const actor = core.getInput('actor');
             const runId = core.getInput('runId');
+            let screenshots;
             core.debug(`Token: ${token}`);
             core.debug(`Channels: ${channels}`);
             core.debug(`Branch: ${branch}`);
@@ -768,17 +770,25 @@ function run() {
             core.debug('Initializing slack SDK');
             const slack = new web_api_1.WebClient(token);
             core.debug('Slack SDK initialized successfully');
-            core.debug('Checking for videos and/or screenshots from cypress');
-            const videos = walk_sync_1.default('tests/e2e/videos', { globs: ['**/*.mp4'] });
-            const screenshots = walk_sync_1.default('tests/e2e/screenshots', {
-                globs: ['**/*.png']
-            });
-            if (videos.length <= 0 && screenshots.length <= 0) {
-                core.debug('No videos or screenshots found. Exiting!');
-                core.setOutput('result', 'No videos or screenshots found!');
+            core.debug('Checking if screenshots directory exists...');
+            if (fs.existsSync('./tests/e2e/screenshots')) {
+                core.debug('Screenshots directory exists!');
+                screenshots = walk_sync_1.default('tests/e2e/screenshots', {
+                    globs: ['**/*.png']
+                });
+            }
+            else {
+                core.debug('Screenshots directory DOES NOT exists!');
+                screenshots = {
+                    length: 0
+                };
+            }
+            if (screenshots.length <= 0) {
+                core.debug('No screenshots found. Exiting!');
+                core.setOutput('result', 'No screenshots found!');
                 return;
             }
-            core.debug(`Found ${videos.length} videos and ${screenshots.length} screenshots`);
+            core.debug(`Found ${screenshots.length} screenshots`);
             core.debug('Sending initial slack message');
             const result = yield slack.chat.postMessage({
                 text: `<@${actors_1.default[actor]}> Web branch *${branch}* has test failures, hold tight...`,
@@ -801,29 +811,18 @@ function run() {
                 })));
                 core.debug('...done!');
             }
-            if (videos.length > 0) {
-                core.debug('Uploading videos...');
-                yield Promise.all(videos.map((video) => __awaiter(this, void 0, void 0, function* () {
-                    core.debug(`Uploading ${video}`);
-                    yield slack.files.upload({
-                        filename: video,
-                        file: fs_1.createReadStream(`tests/e2e/videos/${video}`),
-                        thread_ts: threadID,
-                        channels: channelId
-                    });
-                })));
-                core.debug('...done!');
-            }
             core.debug('Updating message to indicate a successful upload');
             yield slack.chat.update({
                 ts: threadID,
                 channel: channelId,
-                text: `<@${actors_1.default[actor]}> Web branch *${branch}* has test failures.\nScreenshots/videos attached in thread, link to test run: https://github.com/CodaCollection/web/actions/runs/${runId}`
+                text: `<@${actors_1.default[actor]}> Web branch *${branch}* has test failures.\nScreenshots attached in thread, link to test run: https://github.com/CodaCollection/web/actions/runs/${runId}`
             });
             core.setOutput('result', 'Bingo bango bongo!');
         }
         catch (error) {
-            core.setFailed(error.message);
+            if (error instanceof Error) {
+                core.setFailed(error.message);
+            }
         }
     });
 }
@@ -6439,20 +6438,18 @@ exports.getUserAgent = getUserAgent;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const actors = {
-    'aleksandar-ilic-lmp': 'U01A7010YHW',
     'andrej-zentner-lmp': 'U019E27DKCM',
     'billy-fortin-coda': 'U015MLV41SL',
-    'bogdan-poplauschi-coda': 'U0183M9NMPU',
     'colton-savage-lmp': 'U014WEHJUTX',
     'jeff-borders-coda': 'U017GEJ0M0C',
-    'john-sylvain-coda': 'U0161MH110F',
     'meg-okeefe-coda': 'U015Y01C5HC',
     'mihai-rustiuc-coda': 'U01866TL2JV',
-    'mike-beirne-coda': 'U01B7URUW20',
     'mike-piacenza-lmp': 'U010HEQUN6B',
-    'vid-staric-lmp': 'U019H4RGK26',
     'yao-zhang-coda': 'U017ZPV3M44',
-    'zach-glazer-coda': 'U015Y017HTQ'
+    'keri-weiss-coda': 'U02MRRD9BFD',
+    'luis-solano-coda': 'U02K654CABH',
+    'vince-zipparro-coda': 'U02E70XGRFF',
+    'kayleigh-traister-coda': 'U021E5FUSKD'
 };
 exports.default = actors;
 
